@@ -1,0 +1,24 @@
+{
+  "env": {
+    "es2021": true,
+    "node": true
+  },
+  "extends": [
+    "plugin:react/recommended",
+    "airbnb",
+    "eslint-config-prettier", // 追加
+    "prettier" // 追加
+  ],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 12,
+    "sourceType": "module"
+  },
+  "plugins": ["react"],
+  "rules": {
+    "import/prefer-default-export": 0, // 追加
+    "no-use-before-define": 0 // 追加
+  }
+}

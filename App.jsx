@@ -14,9 +14,9 @@ export default function App() {
   const fetchAddress = async () => {
     try {
       const response = await axios.get(`${zipcloudURL}?zipcode=${postalCode}`);
-      const data = response.data;
-      if ( !data.results ) {
-        return '該当する住所はありませんでした。'
+      const { data } = response;
+      if (!data.results) {
+        return '該当する住所はありませんでした。';
       }
       switch (data.status) {
         case 200:
@@ -26,19 +26,21 @@ export default function App() {
           return data.message;
         case 500:
           return data.message;
+        default:
+          return '予期しない動作です';
       }
     } catch (error) {
-       return '検索失敗';
+      return '検索失敗';
     }
-  }
+  };
 
   // 送信ボタンを押した時に実行される関数
   async function handlePress() {
     // 7桁の数字を正規表現で置きます
     const pattern = /^[0-9]{7}$/;
-    if (pattern.test(postalCode)){
-      const address = await fetchAddress();
-      setAddress(address);
+    if (pattern.test(postalCode)) {
+      const searchedAddress = await fetchAddress();
+      setAddress(searchedAddress);
     } else {
       // 想定していない文字列の場合
       Alert.alert('正しい郵便番号ではありません', 'もう一度入力してください');
@@ -48,22 +50,22 @@ export default function App() {
   // アプリに描画する内容
   return (
     <View style={styles.container}>
-      <Text style={styles.description}>郵便番号を入力してください{"\n"}(ハイフンなし7桁)</Text>
+      <Text style={styles.description}>
+        郵便番号を入力してください
+        {'\n'}
+        (ハイフンなし7桁)
+      </Text>
       <TextInput
         value={postalCode}
         style={styles.inputPostalCode}
-        onChangeText={(text) =>{
+        onChangeText={(text) => {
           setPostalCode(text);
         }}
         maxLength={7}
-        keyboardType={"numeric"}
-        placeholder={"郵便番号"}
+        keyboardType="numeric"
+        placeholder="郵便番号"
       />
-      <Button
-        title="送信"
-        color="#AAAAAA"
-        onPress={handlePress}
-      />
+      <Button title="送信" color="#AAAAAA" onPress={handlePress} />
       {address.length > 0 && (
         <View style={styles.addressContainer}>
           <View style={styles.addressLabel}>
