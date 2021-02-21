@@ -2,13 +2,19 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Button, Alert } from 'react-native';
 import axios from 'axios';
 
+import { weatherAPIKey } from './env';
+
 // 郵便番号検索APIのURL
 const zipcloudURL = 'https://zipcloud.ibsnet.co.jp/api/search';
 
+// OpenWeatherAPIのURL
+const weatherURL = 'http://api.openweathermap.org/data/2.5/weather';
+
 export default function App() {
-  // 郵便番号を保存しておくstate
+  // 各種値を保存しておくstate
   const [postalCode, setPostalCode] = useState('');
   const [address, setAddress] = useState('');
+  const [weather, setWeather] = useState('');
 
   // axiosのGETメソッドを使った住所検索
   const fetchAddress = async () => {
@@ -34,6 +40,21 @@ export default function App() {
     }
   };
 
+  // axiosのGETメソッドを使った天気情報取得
+  const fetchWeather = async () => {
+    try {
+      const postalCode1 = postalCode.substr(0, 3);
+      const postalCode2 = postalCode.substr(3, 4);
+      const response = await axios.get(
+        `${weatherURL}?zip=${postalCode1}-${postalCode2},JP&lang=ja&appid=${weatherAPIKey}`
+      );
+      const { data } = response;
+      return data.weather[0].description;
+    } catch (error) {
+      return '天気情報の取得に失敗しました。';
+    }
+  };
+
   // 送信ボタンを押した時に実行される関数
   async function handlePress() {
     // 7桁の数字を正規表現で置きます
@@ -41,6 +62,8 @@ export default function App() {
     if (pattern.test(postalCode)) {
       const searchedAddress = await fetchAddress();
       setAddress(searchedAddress);
+      const currentWeather = await fetchWeather();
+      setWeather(currentWeather);
     } else {
       // 想定していない文字列の場合
       Alert.alert('正しい郵便番号ではありません', 'もう一度入力してください');
@@ -73,6 +96,16 @@ export default function App() {
           </View>
           <View style={styles.address}>
             <Text style={styles.addressText}>{address}</Text>
+          </View>
+        </View>
+      )}
+      {weather.length > 0 && (
+        <View style={styles.weatherContainer}>
+          <View style={styles.weatherLabel}>
+            <Text style={styles.weatherLabelText}>現在の天気</Text>
+          </View>
+          <View style={styles.weather}>
+            <Text style={styles.weatherText}>{weather}</Text>
           </View>
         </View>
       )}
@@ -117,6 +150,24 @@ const styles = StyleSheet.create({
     paddingLeft: 5,
   },
   addressText: {
+    fontSize: 16,
+    color: '#000000',
+  },
+  weatherContainer: {
+    paddingVertical: 10,
+    width: 280,
+  },
+  weatherLabel: {
+    paddingBottom: 10,
+  },
+  weatherLabelText: {
+    fontSize: 18,
+    color: '#666666',
+  },
+  weather: {
+    paddingLeft: 5,
+  },
+  weatherText: {
     fontSize: 16,
     color: '#000000',
   },
